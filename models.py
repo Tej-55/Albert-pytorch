@@ -20,16 +20,27 @@ from utils import split_last, merge_last
 
 class Config(NamedTuple):
     "Configuration for BERT model"
-    vocab_size: int = None # Size of Vocabulary
-    hidden: int = 768 # Dimension of Hidden Layer in Transformer Encoder
-    hidden_ff: int = 768*4 # Dimension of Intermediate Layers in Positionwise Feedforward Net
-    embedding: int = 128 # Factorized embedding parameterization
+    vocab_size = 15000 # Size of Vocabulary
+    hidden = 384 # Dimension of Hidden Layer in Transformer Encoder
+    hidden_ff = 640 # Dimension of Intermediate Layers in Positionwise Feedforward Net
+    embedding = 64 # Factorized embedding parameterization
 
-    n_layers: int = 12 # Numher of Hidden Layers
-    n_heads: int = 768//64 # Numher of Heads in Multi-Headed Attention Layers
-    #activ_fn: str = "gelu" # Non-linear Activation Function Type in Hidden Layers
-    max_len: int = 512 # Maximum Length for Positional Embeddings
-    n_segments: int = 2 # Number of Sentence Segments
+    n_layers = 6 # Numher of Hidden Layers
+    n_heads = 384//32 # Numher of Heads in Multi-Headed Attention Layers
+    #activ_fn = "gelu" # Non-linear Activation Function Type in Hidden Layers
+    max_len = 258 # Maximum Length for Positional Embeddings
+    n_segments = 2 # Number of Sentence Segments
+
+    M = 256
+    C = 384
+    N = 128
+    D = 384
+    cross_heads = 1
+    latent_heads = 8
+    cross_dim_head = 32
+    latent_dim_head = 32
+    ffw = 640
+    process_layers = 12
 
     @classmethod
     def from_json(cls, file):
@@ -70,7 +81,7 @@ class Embeddings(nn.Module):
         self.pos_embed = nn.Embedding(cfg.max_len, cfg.hidden) # position embedding
         self.seg_embed = nn.Embedding(cfg.n_segments, cfg.hidden) # segment(token type) embedding
 
-        self.norm = LayerNorm(cfg)
+        self.norm = nn.LayerNorm(cfg.hidden)
         # self.drop = nn.Dropout(cfg.p_drop_hidden)
 
     def forward(self, x, seg):
@@ -164,9 +175,9 @@ class Transformer(nn.Module):
         self.n_layers = cfg.n_layers
         self.attn = MultiHeadedSelfAttention(cfg)
         self.proj = nn.Linear(cfg.hidden, cfg.hidden)
-        self.norm1 = LayerNorm(cfg)
+        self.norm1 = nn.LayerNorm(cfg.hidden)
         self.pwff = PositionWiseFeedForward(cfg)
-        self.norm2 = LayerNorm(cfg)
+        self.norm2 = nn.LayerNorm(cfg.hidden)
         # self.drop = nn.Dropout(cfg.p_drop_hidden)
 
     def forward(self, x, seg, mask):
