@@ -20,7 +20,7 @@ from utils import split_last, merge_last
 
 class Config(NamedTuple):
     "Configuration for BERT model"
-    vocab_size = 15000 # Size of Vocabulary
+    vocab_size = 30000 # Size of Vocabulary
     hidden = 384 # Dimension of Hidden Layer in Transformer Encoder
     hidden_ff = 640 # Dimension of Intermediate Layers in Positionwise Feedforward Net
     embedding = 64 # Factorized embedding parameterization
@@ -28,7 +28,7 @@ class Config(NamedTuple):
     n_layers = 6 # Numher of Hidden Layers
     n_heads = 384//32 # Numher of Heads in Multi-Headed Attention Layers
     #activ_fn = "gelu" # Non-linear Activation Function Type in Hidden Layers
-    max_len = 258 # Maximum Length for Positional Embeddings
+    max_len = 256 # Maximum Length for Positional Embeddings
     n_segments = 2 # Number of Sentence Segments
 
     M = 256
