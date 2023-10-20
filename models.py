@@ -42,9 +42,9 @@ class Config(NamedTuple):
     ffw = 640
     process_layers = 12
 
-    @classmethod
-    def from_json(cls, file):
-        return cls(**json.load(open(file, "r")))
+    # @classmethod
+    # def from_json(cls, file):
+    #     return cls(**json.load(open(file, "r")))
 
 
 def gelu(x):
