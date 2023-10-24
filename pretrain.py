@@ -255,7 +255,7 @@ def main(args):
                            global_step)
         return loss_lm + loss_sop
 
-    trainer.train(get_loss, model_file=None, None, data_parallel=True)
+    trainer.train(get_loss, args.model_file, None, args.data_parallel)
 
 
 if __name__ == '__main__':
