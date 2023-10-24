@@ -41,10 +41,10 @@ class Trainer(object):
         self.save_dir = save_dir
         self.device = device # device name
 
-    def train(self, get_loss, model_file=None, data_parallel=False):
+    def train(self, get_loss, model_file=None, pretrain_file=None, data_parallel=True):
         """ Train Loop """
         self.model.train() # train mode
-        self.load(model_file)
+        self.load(model_file, pretrain_file)
         model = self.model.to(self.device)
         if data_parallel: # use Data Parallelism with Multi-GPU
             model = nn.DataParallel(model)
@@ -80,7 +80,7 @@ class Trainer(object):
     def eval(self, evaluate, model_file, data_parallel=True):
         """ Evaluation Loop """
         self.model.eval() # evaluation mode
-        self.load(model_file)
+        self.load(model_file, None)
         model = self.model.to(self.device)
         if data_parallel: # use Data Parallelism with Multi-GPU
             model = nn.DataParallel(model)
@@ -96,14 +96,25 @@ class Trainer(object):
             iter_bar.set_description('Iter(acc=%5.3f)'%accuracy)
         return results
 
-    def load(self, model_file):
+    def load(self, model_file, pretrain_file):
         """ load saved model or pretrained transformer (a part of model) """
         if model_file:
             print('Loading the model from', model_file)
             self.model.load_state_dict(torch.load(model_file))
 
+        elif pretrain_file: # use pretrained transformer
+            print('Loading the pretrained model from', pretrain_file)
+            if pretrain_file.endswith('.ckpt'): # checkpoint file in tensorflow
+                checkpoint.load_model(self.model.transformer, pretrain_file)
+            elif pretrain_file.endswith('.pt'): # pretrain model file in pytorch
+                self.model.transformer.load_state_dict(
+                    {key[12:]: value
+                        for key, value in torch.load(pretrain_file).items()
+                        if key.startswith('transformer')}
+                ) # load only transformer parts
+
+
     def save(self, i):
         """ save current model """
         torch.save(self.model.state_dict(), # save model object before nn.DataParallel
             os.path.join(self.save_dir, 'model_steps_'+str(i)+'.pt'))
-
