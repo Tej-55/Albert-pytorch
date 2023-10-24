@@ -52,20 +52,6 @@ def gelu(x):
     return x * 0.5 * (1.0 + torch.erf(x / math.sqrt(2.0)))
 
 
-class LayerNorm(nn.Module):
-    "A layernorm module in the TF style (epsilon inside the square root)."
-    def __init__(self, cfg, variance_epsilon=1e-12):
-        super().__init__()
-        self.gamma = nn.Parameter(torch.ones(cfg.hidden))
-        self.beta  = nn.Parameter(torch.zeros(cfg.hidden))
-        self.variance_epsilon = variance_epsilon
-
-    def forward(self, x):
-        u = x.mean(-1, keepdim=True)
-        s = (x - u).pow(2).mean(-1, keepdim=True)
-        x = (x - u) / torch.sqrt(s + self.variance_epsilon)
-        return self.gamma * x + self.beta
-
 
 class Embeddings(nn.Module):
     "The embedding module from word, position and token_type embeddings."
@@ -143,24 +129,6 @@ class PositionWiseFeedForward(nn.Module):
     def forward(self, x):
         # (B, S, D) -> (B, S, D_ff) -> (B, S, D)
         return self.fc2(gelu(self.fc1(x)))
-
-
-# class Block(nn.Module):
-#     """ Transformer Block """
-#     def __init__(self, cfg):
-#         super().__init__()
-#         self.attn = MultiHeadedSelfAttention(cfg)
-#         self.proj = nn.Linear(cfg.hidden, cfg.hidden)
-#         self.norm1 = LayerNorm(cfg)
-#         self.pwff = PositionWiseFeedForward(cfg)
-#         self.norm2 = LayerNorm(cfg)
-#         self.drop = nn.Dropout(cfg.p_drop_hidden)
-#
-#     def forward(self, x, mask):
-#         h = self.attn(x, mask)
-#         h = self.norm1(x + self.drop(self.proj(h)))
-#         h = self.norm2(h + self.drop(self.pwff(h)))
-#         return h
 
 
 class Transformer(nn.Module):
