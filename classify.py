@@ -154,10 +154,10 @@ class Classifier(nn.Module):
     def __init__(self, cfg, n_labels):
         super().__init__()
         self.transformer = models.Transformer(cfg)
-        self.fc = nn.Linear(cfg.dim, cfg.dim)
+        self.fc = nn.Linear(cfg.hidden, cfg.hidden)
         self.activ = nn.Tanh()
-        self.drop = nn.Dropout(cfg.p_drop_hidden)
-        self.classifier = nn.Linear(cfg.dim, n_labels)
+        self.drop = nn.Dropout(0.1)
+        self.classifier = nn.Linear(cfg.hidden, n_labels)
 
     def forward(self, input_ids, segment_ids, input_mask):
         h = self.transformer(input_ids, segment_ids, input_mask)
