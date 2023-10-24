@@ -261,6 +261,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch ALBERT Language Model')
     parser.add_argument('--data_file', type=str, default='./data/wiki.train.tokens')
+
     parser.add_argument('--vocab', type=str, default='./data/vocab.txt')
     parser.add_argument('--train_cfg', type=str, default='./config/pretrain.json')
     parser.add_argument('--model_cfg', type=str, default='./config/albert_unittest.json')
@@ -280,6 +281,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--save_dir', type=str, default='./saved')
     parser.add_argument('--log_dir', type=str, default='./log')
+    
+    parser.add_argument('--model_file', type=str, default=None)
+    parser.add_argument('--data_parallel', type=bool, default=True)
+
 
     args = parser.parse_args()
     main(args=args)
